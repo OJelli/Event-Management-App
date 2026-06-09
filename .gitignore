@@ -1,0 +1,26 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code settings
+.vscode/
+
+# PHP cache/logs/temp files
+*.log
+*.cache
+*.tmp
+*.bak
+*.swp
+
+# Composer dependencies (if you use Composer later)
+vendor/
+
+# Node modules (if you add JS packages later)
+node_modules/
+
+# Environment/config files (DB credentials, secrets)
+.env
+config.php
+
+# Database dumps
+*.sql
