@@ -1,6 +1,8 @@
 -- Create database if it doesn’t exist
-CREATE DATABASE IF NOT EXISTS event_management;
+DROP DATABASE IF EXISTS event_management;
+CREATE DATABASE event_management;
 USE event_management;
+
 
 -- Table: users
 CREATE TABLE IF NOT EXISTS `users` (
