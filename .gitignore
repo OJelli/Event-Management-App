@@ -24,3 +24,5 @@ config.php
 
 # Database dumps
 *.sql
+
+!database/schema.sql
