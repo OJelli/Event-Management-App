@@ -26,4 +26,4 @@ config.php
 *.sql
 # Ignore all SQL files except for the schema and seeds
 !database/schema.sql
-!database/seeds.sql
+!database/seed.sql
