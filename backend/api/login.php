@@ -12,14 +12,17 @@ if (empty($username) || empty($password)) {
     exit;
 }
 
+$username = trim($username);
+
 try {
+    // Prepared statement to prevent SQL injection
     $sql = "SELECT id, username, password, is_active FROM users WHERE username = ? OR email = ?";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$username, $username]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$user) {
-        echo json_encode(['success' => false, 'message' => 'The user does not exist.']);
+        echo json_encode(['success' => false, 'message' => 'Invalid credentials.']);
         exit;
     }
 
@@ -29,13 +32,19 @@ try {
     }
 
     if (password_verify($password, $user['password'])) {
+        // Prevent session fixation attacks
+        session_regenerate_id(true);
+        
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
+        
         echo json_encode(['success' => true, 'message' => 'Login successfully', 'user_id' => $user['id']]);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Wrong password']);
+        echo json_encode(['success' => false, 'message' => 'Invalid credentials.']);
     }
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    // Log error without exposing details to client
+    error_log("Login error: " . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'System error. Please try again later.']);
 }
 ?>
