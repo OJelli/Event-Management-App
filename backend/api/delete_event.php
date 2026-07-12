@@ -4,11 +4,13 @@ session_start();
 
 require_once __DIR__ . '/../../pdo.php';
 
+// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Please login first']);
     exit;
 }
 
+// Validate event ID
 $event_id = $_POST['event_id'] ?? '';
 
 if (empty($event_id) || !is_numeric($event_id)) {
@@ -19,6 +21,7 @@ if (empty($event_id) || !is_numeric($event_id)) {
 $user_id = $_SESSION['user_id'];
 
 try {
+    // Check if event exists and get creator information
     $checkSql = "SELECT created_by FROM events WHERE id = ?";
     $checkStmt = $pdo->prepare($checkSql);
     $checkStmt->execute([$event_id]);
@@ -29,21 +32,26 @@ try {
         exit;
     }
 
+    // Verify that the current user is the event creator
     if ($event['created_by'] != $user_id) {
         echo json_encode(['success' => false, 'message' => 'You do not have permission to delete this event']);
         exit;
     }
 
+    // Start transaction to ensure data consistency
     $pdo->beginTransaction();
 
+    // Delete all registrations associated with the event
     $deleteRegs = "DELETE FROM registrations WHERE event_id = ?";
     $regStmt = $pdo->prepare($deleteRegs);
     $regStmt->execute([$event_id]);
 
+    // Delete the event itself
     $deleteEvent = "DELETE FROM events WHERE id = ?";
     $eventStmt = $pdo->prepare($deleteEvent);
     $eventStmt->execute([$event_id]);
 
+    // Commit transaction
     $pdo->commit();
 
     echo json_encode([
@@ -51,7 +59,10 @@ try {
         'message' => 'Event deleted successfully'
     ]);
 } catch (PDOException $e) {
+    // Rollback transaction on error
     $pdo->rollBack();
-    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    // Log error without exposing details to client
+    error_log("Delete event error: " . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'System error. Please try again later.']);
 }
 ?>
