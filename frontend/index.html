@@ -4,72 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Management System</title>
-
     <link rel="stylesheet" href="style.css">
-
-    <link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
-
 <body>
 
     <header>
-
         <div class="logo">
-            <h2>Event Manager</h2>
+            <h2>
+            <img src="images/logo.png" alt="Event Manager Logo" class="logo-icon">
+            Event Manager
+            </h2>
         </div>
-
         <nav>
-
             <ul>
-
                 <li><a href="index.html">Home</a></li>
-
                 <li><a href="events.html">Events</a></li>
-
                 <li><a href="my_events.html">My Events</a></li>
-
                 <li><a href="create-event.html">Create Event</a></li>
-
                 <li><a href="profile.html">Profile</a></li>
-
                 <li><a href="login.html">Login</a></li>
-
                 <li><a href="register.html">Register</a></li>
-
             </ul>
-
         </nav>
-
     </header>
 
+    <!-- Hero Section -->
     <section class="hero">
-
         <h1>Welcome to Event Management System</h1>
-
         <p>Create events, manage registrations and explore upcoming events.</p>
-
         <a href="events.html" class="btn">Browse Events</a>
-
     </section>
 
+    <!-- Call to Action -->
+    <section class="cta-section">
+        <h2>Do not have an account?</h2>
+        <p>Join us and make the most of your university experience.</p>
+        <a href="register.html" class="btn">Register Now</a>
+    </section>
+
+    <!-- Events Section -->
     <section class="events-section">
+        <h2>Manage Your Events Effortlessly!</h2>
+        <div id="eventsContainer"></div>
+    </section>
 
-        <h2>Upcoming Events</h2>
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
 
-        <div id="eventsContainer">
+            <!-- Feature 1: Discover Events -->
+            <div class="feature-item">
+                <div class="feature-image">
+                    <img src="images/1.png" alt="Discover Events">
+                </div>
+                <div class="feature-text">
+                    <h2>Discover Events</h2>
+                    <p>Find and join exciting events happening around you. Connect with others who share your interests and make the most of your university experience.</p>
+                </div>
+            </div>
+
+            <!-- Feature 2: Create Events -->
+            <div class="feature-item reverse">
+                <div class="feature-image">
+                    <img src="images/2.png" alt="Create Events">
+                </div>
+                <div class="feature-text">
+                    <h2>Create Events</h2>
+                    <p>Have an idea? Create your own event and invite others to join. Share your passion, organize meetups, and bring the community together.</p>
+                </div>
+            </div>
+
+            <!-- Feature 3: Manage Participation -->
+            <div class="feature-item">
+                <div class="feature-image">
+                    <img src="images/3.png" alt="Manage Participation">
+                </div>
+                <div class="feature-text">
+                    <h2>Manage Participation</h2>
+                    <p>View all your joined events in one place. Easily track your schedule, cancel registration if needed, and stay organized.</p>
+                </div>
+            </div>
+
+            <!-- Feature 4: Secure & Personalized -->
+            <div class="feature-item reverse">
+                <div class="feature-image">
+                    <img src="images/4.png" alt="Secure & Personalized">
+                </div>
+                <div class="feature-text">
+                    <h2>Secure & Personalized</h2>
+                    <p>Your account is protected with secure authentication. Manage your profile, update your information, and enjoy a safe experience.</p>
+                </div>
+            </div>
 
         </div>
-
     </section>
 
     <footer>
-
         <p>© 2026 Event Management System</p>
-
     </footer>
 
-    <script src="js/app.js"></script>
-
 </body>
-
 </html>

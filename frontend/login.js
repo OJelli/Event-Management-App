@@ -7,6 +7,7 @@ loginForm.addEventListener("submit", async function (e) {
 
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
+    const rememberMe = document.getElementById("rememberMe")?.checked || false;
 
     if (!email || !password) {
         message.style.color = "red";
@@ -18,6 +19,7 @@ loginForm.addEventListener("submit", async function (e) {
 
     formData.append("username", email);
     formData.append("password", password);
+    formData.append("remember_me", rememberMe ? "true" : "false");
 
     try {
 

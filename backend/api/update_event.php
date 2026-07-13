@@ -16,6 +16,8 @@ $title = trim($_POST['title'] ?? '');
 $description = trim($_POST['description'] ?? '');
 $event_date = $_POST['event_date'] ?? '';
 $location = trim($_POST['location'] ?? '');
+$status = $_POST['status'] ?? 'upcoming';
+$action = $_POST['action'] ?? 'update';  // 'update' or 'postpone'
 
 // Validate event ID
 if (empty($event_id) || !is_numeric($event_id)) {
@@ -36,11 +38,17 @@ if (!$date || $date->format('Y-m-d') !== $event_date) {
     exit;
 }
 
+// Validate status
+$allowed_statuses = ['upcoming', 'ongoing', 'cancelled', 'completed', 'postponed'];
+if (!in_array($status, $allowed_statuses)) {
+    $status = 'upcoming';
+}
+
 $user_id = $_SESSION['user_id'];
 
 try {
     // Check if event exists and get creator information
-    $checkSql = "SELECT created_by FROM events WHERE id = ?";
+    $checkSql = "SELECT created_by, event_date, original_date FROM events WHERE id = ?";
     $checkStmt = $pdo->prepare($checkSql);
     $checkStmt->execute([$event_id]);
     $event = $checkStmt->fetch(PDO::FETCH_ASSOC);
@@ -56,15 +64,36 @@ try {
         exit;
     }
 
-    // Update the event
-    $sql = "UPDATE events SET title = ?, description = ?, event_date = ?, location = ? WHERE id = ?";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$title, $description, $event_date, $location ?: null, $event_id]);
+    // Handle postpone action
+    if ($action === 'postpone') {
+        // If original_date is not set, store the current event_date as original
+        if (is_null($event['original_date'])) {
+            $original_date = $event['event_date'];
+        } else {
+            // Keep the original original_date
+            $original_date = $event['original_date'];
+        }
 
-    echo json_encode([
-        'success' => true,
-        'message' => 'Event updated successfully'
-    ]);
+        // Update event with postponed status and new date
+        $sql = "UPDATE events SET title = ?, description = ?, event_date = ?, location = ?, status = 'postponed', original_date = ? WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$title, $description, $event_date, $location ?: null, $original_date, $event_id]);
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Event postponed successfully'
+        ]);
+    } else {
+        // Normal update
+        $sql = "UPDATE events SET title = ?, description = ?, event_date = ?, location = ?, status = ? WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$title, $description, $event_date, $location ?: null, $status, $event_id]);
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Event updated successfully'
+        ]);
+    }
 } catch (PDOException $e) {
     // Log error without exposing details to client
     error_log("Update event error: " . $e->getMessage());

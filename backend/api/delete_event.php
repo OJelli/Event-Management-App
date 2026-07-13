@@ -38,31 +38,50 @@ try {
         exit;
     }
 
-    // Start transaction to ensure data consistency
+    // Check if there are any registrations for this event
+    $countSql = "SELECT COUNT(*) as count FROM registrations WHERE event_id = ?";
+    $countStmt = $pdo->prepare($countSql);
+    $countStmt->execute([$event_id]);
+    $result = $countStmt->fetch(PDO::FETCH_ASSOC);
+    $registrationCount = $result['count'] ?? 0;
+
+    // Start transaction
     $pdo->beginTransaction();
 
-    // Delete all registrations associated with the event
-    $deleteRegs = "DELETE FROM registrations WHERE event_id = ?";
-    $regStmt = $pdo->prepare($deleteRegs);
-    $regStmt->execute([$event_id]);
+    if ($registrationCount == 0) {
+        // No registrations - hard delete the event
+        $deleteRegs = "DELETE FROM registrations WHERE event_id = ?";
+        $regStmt = $pdo->prepare($deleteRegs);
+        $regStmt->execute([$event_id]);
 
-    // Delete the event itself
-    $deleteEvent = "DELETE FROM events WHERE id = ?";
-    $eventStmt = $pdo->prepare($deleteEvent);
-    $eventStmt->execute([$event_id]);
+        $deleteEvent = "DELETE FROM events WHERE id = ?";
+        $eventStmt = $pdo->prepare($deleteEvent);
+        $eventStmt->execute([$event_id]);
 
-    // Commit transaction
-    $pdo->commit();
+        $pdo->commit();
 
-    echo json_encode([
-        'success' => true,
-        'message' => 'Event deleted successfully'
-    ]);
+        echo json_encode([
+            'success' => true,
+            'message' => 'Event deleted successfully'
+        ]);
+    } else {
+        // Has registrations - soft delete (cancel the event)
+        $cancelSql = "UPDATE events SET status = 'cancelled' WHERE id = ?";
+        $cancelStmt = $pdo->prepare($cancelSql);
+        $cancelStmt->execute([$event_id]);
+
+        $pdo->commit();
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Event has been cancelled. ' . $registrationCount . ' participant(s) have been notified.'
+        ]);
+    }
 } catch (PDOException $e) {
     // Rollback transaction on error
     $pdo->rollBack();
     // Log error without exposing details to client
-    error_log("Delete event error: " . $e->getMessage());
+    error_log("Delete/Cancel event error: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'System error. Please try again later.']);
 }
 ?>

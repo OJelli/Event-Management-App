@@ -32,18 +32,33 @@ if (!$date || $date->format('Y-m-d') !== $event_date) {
 $user_id = $_SESSION['user_id'];
 
 try {
-    // Insert new event
-    $sql = "INSERT INTO events (title, description, event_date, location, created_by) 
-            VALUES (?, ?, ?, ?, ?)";
+    // Start transaction
+    $pdo->beginTransaction();
+
+    // Insert new event with default status 'upcoming' and NULL original_date
+    $sql = "INSERT INTO events (title, description, event_date, location, created_by, status, original_date) 
+            VALUES (?, ?, ?, ?, ?, 'upcoming', NULL)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$title, $description, $event_date, $location ?: null, $user_id]);
+
+    $event_id = $pdo->lastInsertId();
+
+    // Auto-register the creator as a participant
+    $regSql = "INSERT INTO registrations (user_id, event_id) VALUES (?, ?)";
+    $regStmt = $pdo->prepare($regSql);
+    $regStmt->execute([$user_id, $event_id]);
+
+    // Commit transaction
+    $pdo->commit();
 
     echo json_encode([
         'success' => true,
         'message' => 'Event created successfully',
-        'event_id' => $pdo->lastInsertId()
+        'event_id' => $event_id
     ]);
 } catch (PDOException $e) {
+    // Rollback transaction on error
+    $pdo->rollBack();
     // Log error without exposing details to client
     error_log("Create event error: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'System error. Please try again later.']);

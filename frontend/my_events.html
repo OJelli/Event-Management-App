@@ -13,7 +13,10 @@
 <header>
 
     <div class="logo">
-        <h2>Event Manager</h2>
+        <h2>
+		<img src="images/logo.png" alt="Event Manager Logo" class="logo-icon">
+		Event Manager
+		</h2>
     </div>
 
     <nav>
@@ -31,6 +34,12 @@
 <section class="events-section">
 
     <h1 style="text-align:center;margin-bottom:40px;">My Events</h1>
+
+    <!-- Tab Navigation -->
+    <div class="tab-container">
+        <button class="tab-btn active" data-type="joined" onclick="switchTab('joined')">Joined Events</button>
+        <button class="tab-btn" data-type="created" onclick="switchTab('created')">Created Events</button>
+    </div>
 
     <div id="myEventsContainer"></div>
 
